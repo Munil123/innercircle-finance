@@ -8,6 +8,7 @@ const Settings: React.FC = () => {
     push: false,
     whatsapp: true
   });
+  
   const [privacy, setPrivacy] = useState({
     profileVisible: true,
     shareTransactions: false
@@ -68,7 +69,7 @@ const Settings: React.FC = () => {
               <label>Your Referral Code:</label>
               <div className="code-display">
                 <span className="code">{referralCode}</span>
-                <button 
+                <button
                   className="copy-button"
                   onClick={() => navigator.clipboard.writeText(referralCode)}
                 >
@@ -80,7 +81,7 @@ const Settings: React.FC = () => {
               <label>Invite URL:</label>
               <div className="url-display">
                 <span className="url">{inviteUrl}</span>
-                <button 
+                <button
                   className="copy-button"
                   onClick={() => navigator.clipboard.writeText(inviteUrl)}
                 >
@@ -91,8 +92,8 @@ const Settings: React.FC = () => {
             <div className="share-options">
               <label>Share via:</label>
               <div className="share-buttons">
-                <WhatsAppShare variant="icon" size={40} />
-                <WhatsAppShare 
+                <WhatsAppShare size={40} variant="icon" />
+                <WhatsAppShare
                   variant="button" 
                   customMessage="💰 Hey! I've been using InnerCircle Finance to manage my money and it's amazing! Join me with code {referralCode}: {inviteUrl}"
                 />
@@ -107,7 +108,7 @@ const Settings: React.FC = () => {
           <div className="notification-settings">
             <div className="setting-item">
               <label>
-                <input 
+                <input
                   type="checkbox" 
                   checked={notifications.email}
                   onChange={() => handleNotificationChange('email')}
@@ -118,7 +119,7 @@ const Settings: React.FC = () => {
             </div>
             <div className="setting-item">
               <label>
-                <input 
+                <input
                   type="checkbox" 
                   checked={notifications.push}
                   onChange={() => handleNotificationChange('push')}
@@ -129,7 +130,7 @@ const Settings: React.FC = () => {
             </div>
             <div className="setting-item">
               <label>
-                <input 
+                <input
                   type="checkbox" 
                   checked={notifications.whatsapp}
                   onChange={() => handleNotificationChange('whatsapp')}
@@ -147,7 +148,7 @@ const Settings: React.FC = () => {
           <div className="privacy-settings">
             <div className="setting-item">
               <label>
-                <input 
+                <input
                   type="checkbox" 
                   checked={privacy.profileVisible}
                   onChange={() => handlePrivacyChange('profileVisible')}
@@ -158,7 +159,7 @@ const Settings: React.FC = () => {
             </div>
             <div className="setting-item">
               <label>
-                <input 
+                <input
                   type="checkbox" 
                   checked={privacy.shareTransactions}
                   onChange={() => handlePrivacyChange('shareTransactions')}
@@ -203,7 +204,7 @@ const Settings: React.FC = () => {
         </section>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .settings {
           padding: 20px;
           max-width: 1000px;
@@ -211,7 +212,6 @@ const Settings: React.FC = () => {
           background-color: #f8f9fa;
           min-height: 100vh;
         }
-
         .settings-header {
           display: flex;
           justify-content: space-between;
@@ -222,36 +222,30 @@ const Settings: React.FC = () => {
           border-radius: 12px;
           box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
         .settings-header h1 {
           margin: 0;
           color: #333;
           font-size: 2rem;
         }
-
         .header-actions {
           display: flex;
           gap: 10px;
           align-items: center;
         }
-
         .share-button {
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
         .settings-content {
           display: flex;
           flex-direction: column;
           gap: 20px;
         }
-
         .settings-section {
           background: white;
           border-radius: 12px;
           padding: 24px;
           box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
         .settings-section h2 {
           margin: 0 0 20px 0;
           color: #333;
@@ -259,13 +253,11 @@ const Settings: React.FC = () => {
           border-bottom: 2px solid #e9ecef;
           padding-bottom: 10px;
         }
-
         .account-info {
           display: flex;
           flex-direction: column;
           gap: 12px;
         }
-
         .info-item {
           display: flex;
           justify-content: space-between;
@@ -273,32 +265,26 @@ const Settings: React.FC = () => {
           padding: 12px 0;
           border-bottom: 1px solid #e9ecef;
         }
-
         .info-item:last-child {
           border-bottom: none;
         }
-
         .info-item label {
           font-weight: 600;
           color: #666;
         }
-
         .info-item span {
           color: #333;
         }
-
         .referral-info {
           display: flex;
           flex-direction: column;
           gap: 20px;
         }
-
         .referral-code, .referral-url {
           display: flex;
           flex-direction: column;
           gap: 8px;
         }
-
         .code-display, .url-display {
           display: flex;
           align-items: center;
@@ -308,14 +294,12 @@ const Settings: React.FC = () => {
           border-radius: 8px;
           border: 1px solid #e9ecef;
         }
-
         .code, .url {
           flex: 1;
           font-family: monospace;
           font-weight: 600;
           color: #495057;
         }
-
         .copy-button {
           padding: 6px 12px;
           background: #007bff;
@@ -326,30 +310,25 @@ const Settings: React.FC = () => {
           font-size: 0.875rem;
           transition: background-color 0.2s;
         }
-
         .copy-button:hover {
           background: #0056b3;
         }
-
         .share-options {
           display: flex;
           flex-direction: column;
           gap: 12px;
         }
-
         .share-buttons {
           display: flex;
           gap: 12px;
           align-items: center;
           flex-wrap: wrap;
         }
-
         .notification-settings, .privacy-settings, .app-preferences {
           display: flex;
           flex-direction: column;
           gap: 16px;
         }
-
         .setting-item {
           display: flex;
           flex-direction: column;
@@ -357,11 +336,9 @@ const Settings: React.FC = () => {
           padding: 12px 0;
           border-bottom: 1px solid #e9ecef;
         }
-
         .setting-item:last-child {
           border-bottom: none;
         }
-
         .setting-item label {
           display: flex;
           align-items: center;
@@ -370,17 +347,14 @@ const Settings: React.FC = () => {
           color: #333;
           cursor: pointer;
         }
-
         .setting-item input[type="checkbox"] {
           margin: 0;
         }
-
         .setting-description {
           font-size: 0.875rem;
           color: #666;
           margin-left: 24px;
         }
-
         .currency-select, .date-format-select, .theme-select {
           padding: 8px 12px;
           border: 1px solid #ced4da;
@@ -389,43 +363,35 @@ const Settings: React.FC = () => {
           font-size: 0.875rem;
           min-width: 150px;
         }
-
         .app-preferences .setting-item {
           flex-direction: row;
           justify-content: space-between;
           align-items: center;
         }
-
         .app-preferences .setting-item label {
           margin: 0;
           font-weight: 600;
           color: #666;
         }
-
         @media (max-width: 768px) {
           .settings {
             padding: 10px;
           }
-
           .settings-header {
             flex-direction: column;
             gap: 15px;
             text-align: center;
           }
-
           .header-actions {
             justify-content: center;
           }
-
           .code-display, .url-display {
             flex-direction: column;
             align-items: stretch;
           }
-
           .share-buttons {
             justify-content: center;
           }
-
           .app-preferences .setting-item {
             flex-direction: column;
             align-items: stretch;
