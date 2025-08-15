@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import WhatsAppShare from './WhatsAppShare';
 
 // Initialize Supabase client (you'll need to add your actual URL and key)
 const supabase = createClient(
@@ -36,6 +37,7 @@ const SimplePieChart: React.FC<{ data: CategoryData[] }> = ({ data }) => {
   if (!data || data.length === 0) {
     return (
       <div className="pie-chart-container">
+        <h3>Spending by Category</h3>
         <div className="no-data">No expense data available</div>
       </div>
     );
@@ -229,7 +231,16 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard">
-      <h1>Financial Dashboard</h1>
+      <div className="dashboard-header">
+        <h1>Financial Dashboard</h1>
+        <div className="header-actions">
+          <WhatsAppShare 
+            variant="button" 
+            className="share-button"
+            customMessage="🚀 Take control of your finances with InnerCircle Finance! Join me and start your journey to financial freedom. Use my referral code: {referralCode} 💰📊 {inviteUrl}"
+          />
+        </div>
+      </div>
       
       {/* Financial Metrics Cards */}
       <div className="metrics-cards">
@@ -267,6 +278,30 @@ const Dashboard: React.FC = () => {
           padding: 20px;
           max-width: 1200px;
           margin: 0 auto;
+        }
+        
+        .dashboard-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 30px;
+          flex-wrap: wrap;
+          gap: 15px;
+        }
+        
+        .dashboard-header h1 {
+          margin: 0;
+          color: #333;
+        }
+        
+        .header-actions {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+        }
+        
+        .share-button {
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .metrics-cards {
@@ -358,6 +393,17 @@ const Dashboard: React.FC = () => {
         
         .error {
           color: #dc3545;
+        }
+        
+        @media (max-width: 768px) {
+          .dashboard-header {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          
+          .header-actions {
+            justify-content: center;
+          }
         }
       `}</style>
     </div>
