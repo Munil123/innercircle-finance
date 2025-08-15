@@ -38,13 +38,11 @@ export const useSupabaseAuth = (): UseSupabaseAuthReturn => {
 
     getInitialSession();
 
-    // Listen for auth changes
+    // Listen to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        // Use session.user instead of event.user for TypeScript safety
+      async (session) => {
         setUser(session?.user || null);
         setLoading(false);
-        setError(null);
       }
     );
 
@@ -76,8 +74,8 @@ export const useSupabaseAuth = (): UseSupabaseAuthReturn => {
         email,
         password,
         options: {
-          data: userData || {}
-        }
+          data: userData,
+        },
       });
       if (error) throw error;
     } catch (err) {
