@@ -40,7 +40,8 @@ export const useSupabaseAuth = (): UseSupabaseAuthReturn => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (/* event, */ session) => {
+      async (event, session) => {
+        // Use session.user instead of event.user for TypeScript safety
         setUser(session?.user || null);
         setLoading(false);
         setError(null);
