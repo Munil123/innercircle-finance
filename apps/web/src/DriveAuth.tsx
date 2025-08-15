@@ -35,16 +35,16 @@ export const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthChange }) => {
         return;
       }
 
-      await new Promise((resolve) => {
-        window.gapi.load('auth2', resolve);
+      await new Promise<void>((resolve) => {
+        (window as any).gapi.load('auth2', resolve);
       });
 
-      await window.gapi.auth2.init({
+      await (window as any).gapi.auth2.init({
         client_id: CLIENT_ID,
         scope: SCOPES
       });
 
-      const authInstance = window.gapi.auth2.getAuthInstance();
+      const authInstance = (window as any).gapi.auth2.getAuthInstance();
       const isSignedIn = authInstance.isSignedIn.get();
       
       setIsAuthenticated(isSignedIn);
@@ -64,7 +64,7 @@ export const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthChange }) => {
         await initializeGapi();
       }
 
-      const authInstance = window.gapi.auth2.getAuthInstance();
+      const authInstance = (window as any).gapi.auth2.getAuthInstance();
       const user = await authInstance.signIn();
       
       setIsAuthenticated(true);
@@ -81,7 +81,7 @@ export const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthChange }) => {
   // Sign out from Google Drive
   const signOut = useCallback(async () => {
     try {
-      const authInstance = window.gapi.auth2.getAuthInstance();
+      const authInstance = (window as any).gapi.auth2.getAuthInstance();
       await authInstance.signOut();
       
       setIsAuthenticated(false);
@@ -94,7 +94,7 @@ export const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthChange }) => {
   }, [onAuthChange]);
 
   // Upload file to Google Drive
-  const uploadToDrive = useCallback(async (file: DriveFile) => {
+  const uploadToDriveInternal = useCallback(async (file: DriveFile) => {
     if (!isAuthenticated) {
       setError('Please sign in to Google Drive first');
       return null;
@@ -106,15 +106,15 @@ export const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthChange }) => {
 
     try {
       // Load the Drive API
-      await new Promise((resolve) => {
-        window.gapi.load('client', resolve);
+      await new Promise<void>((resolve) => {
+        (window as any).gapi.load('client', resolve);
       });
 
-      await window.gapi.client.init({
+      await (window as any).gapi.client.init({
         discoveryDocs: DISCOVERY_DOCS,
       });
 
-      const drive = window.gapi.client.drive;
+      const drive = (window as any).gapi.client.drive;
       
       // Create file metadata
       const fileMetadata = {
@@ -130,7 +130,7 @@ export const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthChange }) => {
       form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
       form.append('file', blob);
 
-      const accessToken = window.gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+      const accessToken = (window as any).gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
       
       // Upload using fetch API for better control
       const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
@@ -184,13 +184,13 @@ export const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthChange }) => {
       mimeType: 'application/json'
     };
 
-    await uploadToDrive(testReport);
-  }, [uploadToDrive]);
+    await uploadToDriveInternal(testReport);
+  }, [uploadToDriveInternal]);
 
   // Initialize on component mount
   React.useEffect(() => {
     // Load Google API script if not already loaded
-    if (typeof window.gapi === 'undefined') {
+    if (typeof (window as any).gapi === 'undefined') {
       const script = document.createElement('script');
       script.src = 'https://apis.google.com/js/api.js';
       script.onload = () => initializeGapi();
@@ -257,7 +257,7 @@ export const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthChange }) => {
       </div>
 
       <div className="mt-6 text-xs text-gray-500">
-        <p>This component handles Google Drive OAuth authentication and file upload for backup functionality.</p>
+        This component handles Google Drive OAuth authentication and file upload for backup functionality.
       </div>
     </div>
   );
@@ -266,7 +266,12 @@ export const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthChange }) => {
 export default DriveAuth;
 
 // Export utility functions for use in other components
-export { uploadToDrive as uploadFileToDrive };
+export { uploadToDriveInternal as uploadFileToDrive };
 
 // Type exports
 export type { DriveFile, DriveAuthProps };
+
+// Placeholder function for uploadToDrive
+function uploadToDrive() {
+  // TODO: Implement upload functionality
+}
