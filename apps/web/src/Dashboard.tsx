@@ -62,7 +62,6 @@ const SimplePieChart: React.FC<{ data: CategoryData[] }> = ({ data }) => {
     const y2 = centerY + radius * Math.sin(endAngleRad);
 
     const largeArcFlag = item.percentage > 50 ? 1 : 0;
-
     const pathData = `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
 
     return (
@@ -273,7 +272,7 @@ const Dashboard: React.FC = () => {
         <p>Categories: {categoryData.length}</p>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .dashboard {
           padding: 20px;
           max-width: 1200px;
