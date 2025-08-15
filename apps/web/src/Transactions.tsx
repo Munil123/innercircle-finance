@@ -323,30 +323,26 @@ const Transactions: React.FC = () => {
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .transactions {
           padding: 20px;
           max-width: 1200px;
           margin: 0 auto;
         }
-
         .transaction-form {
           background: #f9f9f9;
           padding: 20px;
           border-radius: 8px;
           margin-bottom: 30px;
         }
-
         .form-group {
           margin-bottom: 15px;
         }
-
         .form-group label {
           display: block;
           margin-bottom: 5px;
           font-weight: bold;
         }
-
         .form-group input,
         .form-group select {
           width: 100%;
@@ -355,7 +351,6 @@ const Transactions: React.FC = () => {
           border-radius: 4px;
           font-size: 14px;
         }
-
         button {
           background: #007bff;
           color: white;
@@ -365,47 +360,38 @@ const Transactions: React.FC = () => {
           cursor: pointer;
           font-size: 16px;
         }
-
         button:hover {
           background: #0056b3;
         }
-
         button:disabled {
           background: #ccc;
           cursor: not-allowed;
         }
-
         .transactions-table {
           overflow-x: auto;
         }
-
         table {
           width: 100%;
           border-collapse: collapse;
           margin-top: 10px;
         }
-
         th, td {
           padding: 12px;
           text-align: left;
           border-bottom: 1px solid #ddd;
         }
-
         th {
           background: #f5f5f5;
           font-weight: bold;
         }
-
         .amount.income {
           color: #28a745;
           font-weight: bold;
         }
-
         .amount.expense {
           color: #dc3545;
           font-weight: bold;
         }
-
         .type-badge {
           padding: 4px 8px;
           border-radius: 4px;
@@ -413,12 +399,10 @@ const Transactions: React.FC = () => {
           font-weight: bold;
           text-transform: uppercase;
         }
-
         .type-badge.income {
           background: #d4edda;
           color: #155724;
         }
-
         .type-badge.expense {
           background: #f8d7da;
           color: #721c24;
