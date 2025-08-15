@@ -1,5 +1,5 @@
+/// <reference types="vite/client" />
 import React, { useState, useCallback } from 'react';
-
 // Google Drive API configuration
 const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'];
 const SCOPES = 'https://www.googleapis.com/auth/drive.file';
