@@ -15,6 +15,46 @@ interface DriveFile {
   mimeType?: string;
 }
 
+// Utility function for uploading files to Google Drive
+export const uploadFileToDrive = async (file: DriveFile, accessToken: string): Promise<any | null> => {
+  try {
+    // Create file metadata
+    const fileMetadata = {
+      name: file.name,
+      parents: ['appDataFolder'] // Store in app data folder for privacy
+    };
+
+    // Convert content to blob
+    const blob = new Blob([file.content], { type: file.mimeType || 'text/plain' });
+    
+    // Create form data for multipart upload
+    const form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
+    form.append('file', blob);
+
+    // Upload using fetch API for better control
+    const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: form
+    });
+
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('File uploaded successfully:', result);
+    return result;
+    
+  } catch (err) {
+    console.error('Error uploading to Drive:', err);
+    return null;
+  }
+};
+
 export const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthChange }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -27,7 +67,7 @@ export const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthChange }) => {
     try {
       // Note: This requires GOOGLE_CLIENT_ID to be set in environment variables
       // For now, we'll show a placeholder that requires manual configuration
-      const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID_HERE';
+      const CLIENT_ID = (import.meta as ImportMeta).env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID_HERE';
       
       if (CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID_HERE') {
         setError('Google Client ID not configured. Please set VITE_GOOGLE_CLIENT_ID in your environment.');
@@ -92,7 +132,7 @@ export const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthChange }) => {
     }
   }, [onAuthChange]);
 
-  // Upload file to Google Drive
+  // Upload file to Google Drive - internal version for component use
   const uploadToDriveInternal = useCallback(async (file: DriveFile) => {
     if (!isAuthenticated) {
       setError('Please sign in to Google Drive first');
@@ -113,39 +153,15 @@ export const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthChange }) => {
         discoveryDocs: DISCOVERY_DOCS,
       });
 
-      // Create file metadata
-      const fileMetadata = {
-        name: file.name,
-        parents: ['appDataFolder'] // Store in app data folder for privacy
-      };
-
-      // Convert content to blob
-      const blob = new Blob([file.content], { type: file.mimeType || 'text/plain' });
-      
-      // Create form data for multipart upload
-      const form = new FormData();
-      form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
-      form.append('file', blob);
-
       const accessToken = (window as any).gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+      const result = await uploadFileToDrive(file, accessToken);
       
-      // Upload using fetch API for better control
-      const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        },
-        body: form
-      });
-
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
+      if (result) {
+        setUploadStatus(`File uploaded successfully! File ID: ${result.id}`);
+      } else {
+        setError('Failed to upload file to Google Drive');
       }
-
-      const result = await response.json();
-      setUploadStatus(`File uploaded successfully! File ID: ${result.id}`);
       
-      console.log('File uploaded successfully:', result);
       return result;
       
     } catch (err) {
@@ -261,9 +277,6 @@ export const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthChange }) => {
 };
 
 export default DriveAuth;
-
-// Export utility functions for use in other components
-export { uploadToDriveInternal as uploadFileToDrive };
 
 // Type exports
 export type { DriveFile, DriveAuthProps };
