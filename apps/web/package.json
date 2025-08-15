@@ -14,11 +14,15 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.1",
     "googleapis": "^126.0.1",
-    "react-share": "^4.4.1"
+    "react-share": "^4.4.1",
+    "@supabase/supabase-js": "^2.39.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
+    "@types/node": "^20.0.0",
+    "@types/gapi": "^0.0.45",
+    "@types/gapi.auth2": "^0.0.57",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
     "@vitejs/plugin-react": "^4.1.1",
