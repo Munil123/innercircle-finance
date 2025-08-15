@@ -24,6 +24,81 @@ interface FinancialMetrics {
   netSavings: number;
 }
 
+interface CategoryData {
+  category: string;
+  amount: number;
+  percentage: number;
+  color: string;
+}
+
+// Simple pie chart component using HTML/CSS
+const SimplePieChart: React.FC<{ data: CategoryData[] }> = ({ data }) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="pie-chart-container">
+        <div className="no-data">No expense data available</div>
+      </div>
+    );
+  }
+
+  let currentAngle = 0;
+  const radius = 80;
+  const centerX = 100;
+  const centerY = 100;
+
+  const pathElements = data.map((item, index) => {
+    const startAngle = currentAngle;
+    const endAngle = currentAngle + (item.percentage * 360 / 100);
+    currentAngle = endAngle;
+
+    const startAngleRad = (startAngle * Math.PI) / 180;
+    const endAngleRad = (endAngle * Math.PI) / 180;
+
+    const x1 = centerX + radius * Math.cos(startAngleRad);
+    const y1 = centerY + radius * Math.sin(startAngleRad);
+    const x2 = centerX + radius * Math.cos(endAngleRad);
+    const y2 = centerY + radius * Math.sin(endAngleRad);
+
+    const largeArcFlag = item.percentage > 50 ? 1 : 0;
+
+    const pathData = `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+
+    return (
+      <path
+        key={index}
+        d={pathData}
+        fill={item.color}
+        stroke="white"
+        strokeWidth="2"
+      />
+    );
+  });
+
+  return (
+    <div className="pie-chart-container">
+      <h3>Spending by Category</h3>
+      <div className="chart-and-legend">
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          {pathElements}
+        </svg>
+        <div className="legend">
+          {data.map((item, index) => (
+            <div key={index} className="legend-item">
+              <div
+                className="legend-color"
+                style={{ backgroundColor: item.color }}
+              />
+              <span className="legend-text">
+                {item.category}: ${item.amount.toFixed(2)} ({item.percentage.toFixed(1)}%)
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Dashboard: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [metrics, setMetrics] = useState<FinancialMetrics>({
@@ -31,8 +106,15 @@ const Dashboard: React.FC = () => {
     totalExpenses: 0,
     netSavings: 0
   });
+  const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Predefined colors for categories
+  const categoryColors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+  ];
 
   // Get current month's start and end dates
   const getCurrentMonthRange = () => {
@@ -43,6 +125,36 @@ const Dashboard: React.FC = () => {
       start: startOfMonth.toISOString().split('T')[0],
       end: endOfMonth.toISOString().split('T')[0]
     };
+  };
+
+  // Calculate category data for pie chart
+  const calculateCategoryData = (transactionData: Transaction[]) => {
+    const expenseTransactions = transactionData.filter(t => t.type === 'expense');
+    const totalExpenses = expenseTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+    if (totalExpenses === 0) {
+      setCategoryData([]);
+      return;
+    }
+
+    // Group by category
+    const categoryTotals = expenseTransactions.reduce((acc, transaction) => {
+      const category = transaction.category || 'Other';
+      acc[category] = (acc[category] || 0) + Math.abs(transaction.amount);
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Convert to array and calculate percentages
+    const categoryArray = Object.entries(categoryTotals)
+      .map(([category, amount], index) => ({
+        category,
+        amount,
+        percentage: (amount / totalExpenses) * 100,
+        color: categoryColors[index % categoryColors.length]
+      }))
+      .sort((a, b) => b.amount - a.amount); // Sort by amount descending
+
+    setCategoryData(categoryArray);
   };
 
   // Fetch transactions from Supabase
@@ -70,6 +182,7 @@ const Dashboard: React.FC = () => {
 
       setTransactions(data || []);
       calculateMetrics(data || []);
+      calculateCategoryData(data || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch transactions');
     } finally {
@@ -136,10 +249,117 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Charts Section */}
+      <div className="charts-section">
+        <div className="chart-container">
+          <SimplePieChart data={categoryData} />
+        </div>
+      </div>
+
       <div className="dashboard-content">
         <p>Dashboard implementation in progress...</p>
         <p>Transactions loaded: {transactions.length}</p>
+        <p>Categories: {categoryData.length}</p>
       </div>
+
+      <style jsx>{`
+        .dashboard {
+          padding: 20px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        
+        .metrics-cards {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 20px;
+          margin: 20px 0;
+        }
+        
+        .metric-card {
+          background: white;
+          border-radius: 8px;
+          padding: 20px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          text-align: center;
+        }
+        
+        .metric-card h3 {
+          margin: 0 0 10px 0;
+          font-size: 14px;
+          text-transform: uppercase;
+          color: #666;
+        }
+        
+        .amount {
+          font-size: 24px;
+          font-weight: bold;
+        }
+        
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+        
+        .charts-section {
+          margin: 30px 0;
+        }
+        
+        .chart-container {
+          background: white;
+          border-radius: 8px;
+          padding: 20px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .pie-chart-container h3 {
+          margin: 0 0 20px 0;
+          text-align: center;
+        }
+        
+        .chart-and-legend {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 30px;
+          flex-wrap: wrap;
+        }
+        
+        .legend {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .legend-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        
+        .legend-color {
+          width: 16px;
+          height: 16px;
+          border-radius: 2px;
+        }
+        
+        .legend-text {
+          font-size: 14px;
+        }
+        
+        .no-data {
+          text-align: center;
+          color: #666;
+          font-style: italic;
+        }
+        
+        .loading, .error {
+          text-align: center;
+          padding: 40px;
+        }
+        
+        .error {
+          color: #dc3545;
+        }
+      `}</style>
     </div>
   );
 };
