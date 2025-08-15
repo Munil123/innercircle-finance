@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { google } from 'googleapis';
 
 // Google Drive API configuration
 const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'];
@@ -114,8 +113,6 @@ export const DriveAuth: React.FC<DriveAuthProps> = ({ onAuthChange }) => {
         discoveryDocs: DISCOVERY_DOCS,
       });
 
-      const drive = (window as any).gapi.client.drive;
-      
       // Create file metadata
       const fileMetadata = {
         name: file.name,
@@ -270,8 +267,3 @@ export { uploadToDriveInternal as uploadFileToDrive };
 
 // Type exports
 export type { DriveFile, DriveAuthProps };
-
-// Placeholder function for uploadToDrive
-function uploadToDrive() {
-  // TODO: Implement upload functionality
-}
