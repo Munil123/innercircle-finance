@@ -2,13 +2,11 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { createClient } from '@supabase/supabase-js'
-import App from './App'
 import './index.css'
 
 // Initialize Supabase client
 const supabaseUrl = 'https://zpajciigehfxqyarcson.supabase.co'
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwYWpjaWlnZWhmeHF5YXJjc29uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MjA0MDEsImV4cCI6MjA3MDM5NjQwMX0.eJjj9NqKa3qSF5cME8NIizcsjde1HHJ4AGMUYFxB0-c'
-
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Auth Context
@@ -179,8 +177,8 @@ function Dashboard() {
           Sign Out
         </button>
       </div>
-      <p>Welcome, {user?.email}!</p>
-      <p>This is your dashboard - coming soon!</p>
+      Welcome, {user?.email}!
+      This is your dashboard - coming soon!
     </div>
   )
 }
@@ -189,7 +187,7 @@ function Transactions() {
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-6">Transactions</h1>
-      <p>Transaction management - coming soon!</p>
+      Transaction management - coming soon!
     </div>
   )
 }
@@ -198,7 +196,7 @@ function Investments() {
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-6">Investments</h1>
-      <p>Investment tracking - coming soon!</p>
+      Investment tracking - coming soon!
     </div>
   )
 }
@@ -207,7 +205,7 @@ function Lending() {
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-6">Lending</h1>
-      <p>Lending management - coming soon!</p>
+      Lending management - coming soon!
     </div>
   )
 }
@@ -216,7 +214,7 @@ function Reports() {
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-6">Reports</h1>
-      <p>Financial reports - coming soon!</p>
+      Financial reports - coming soon!
     </div>
   )
 }
@@ -225,7 +223,7 @@ function Settings() {
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-6">Settings</h1>
-      <p>Application settings - coming soon!</p>
+      Application settings - coming soon!
     </div>
   )
 }
