@@ -5,22 +5,20 @@ import { createClient } from '@supabase/supabase-js';
 import './index.css';
 
 import Dashboard from './Dashboard';
+import Reports from './Reports';
 import Transactions from './Transactions';
 import Investments from './Investments';
 import Lending from './Lending';
-import Reports from './Reports';
 import Settings from './Settings';
-// Auth page logic will be inline (below)
 
 // --- Supabase client ---
 const supabaseUrl = 'https://zpajciigehfxqyarcson.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpwYWpjaWlnZWhmeHF5YXJjc29uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MjA0MDEsImV4cCI6MjA3MDM5NjQwMX0.eJjj9NqKa3qSF5cME8NIizcsjde1HHJ4AGMUYFxB0-c';
+const supabaseAnonKey = 'ey...FxB0-c'; // Use your actual key here
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // --- Auth Context ---
 interface AuthContextType {
   user: any;
-  session: any;
   loading: boolean;
   signIn: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -29,128 +27,86 @@ const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<any>(null);
-  const [session, setSession] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
     return () => subscription.unsubscribe();
   }, []);
-
   const signIn = async (email: string) => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
     });
     if (error) throw error;
   };
-
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   };
-
-  const value = { user, session, loading, signIn, signOut };
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, loading, signIn, signOut }}>{children}</AuthContext.Provider>;
 }
 
 function useAuth() {
   const context = React.useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (context === undefined) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 }
 
-// --- Protected Route ---
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (!user) return <Navigate to="/auth" replace />;
   return <>{children}</>;
 }
 
-// --- Auth Page ---
 function AuthPage() {
   const [email, setEmail] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [message, setMessage] = React.useState('');
   const { signIn } = useAuth();
-
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setLoading(true);
       await signIn(email);
       setMessage('Check your email for the login link!');
-    } catch (error: any) {
-      setMessage(error.message);
+    } catch (e: any) {
+      setMessage(e.message);
     } finally {
       setLoading(false);
     }
   };
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to Inner Circle Finance
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSignIn}>
-          <div>
-            <label htmlFor="email" className="sr-only">Email address</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-              placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {loading ? 'Sending...' : 'Send Magic Link'}
-            </button>
-          </div>
-          {message && (
-            <div className="text-center text-sm text-green-600">{message}</div>
-          )}
-        </form>
-      </div>
+    <div className="min-h-screen flex items-center justify-center">
+      <form onSubmit={handleSignIn} className="space-y-4 w-80 p-8 bg-white rounded shadow">
+        <h2 className="text-2xl font-bold mb-2">Sign in to Inner Circle Finance</h2>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          required
+          className="border w-full px-3 py-2 rounded"
+          placeholder="Email address"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+        />
+        <button type="submit" disabled={loading} className="bg-blue-600 text-white rounded px-4 py-2 w-full">
+          {loading ? 'Sending...' : 'Send Magic Link'}
+        </button>
+        {message && <div className="text-green-600">{message}</div>}
+      </form>
     </div>
   );
 }
 
-// --- Main Router ---
 function AppRouter() {
   return (
     <Routes>
@@ -160,6 +116,14 @@ function AppRouter() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reports"
+        element={
+          <ProtectedRoute>
+            <Reports />
           </ProtectedRoute>
         }
       />
@@ -188,14 +152,6 @@ function AppRouter() {
         }
       />
       <Route
-        path="/reports"
-        element={
-          <ProtectedRoute>
-            <Reports />
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/settings"
         element={
           <ProtectedRoute>
@@ -209,7 +165,6 @@ function AppRouter() {
   );
 }
 
-// --- Mount app ---
 const container = document.getElementById('root');
 if (!container) throw new Error('Failed to find the root element');
 const root = createRoot(container);
