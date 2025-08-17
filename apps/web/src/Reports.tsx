@@ -1,8 +1,6 @@
 // apps/web/src/Reports.tsx
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from './main'; // update the import if your supabase client is elsewhere
-
 // Chart drawing support (install with `npm install chart.js react-chartjs-2`)
 import { Pie, Bar } from 'react-chartjs-2';
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
@@ -21,64 +19,68 @@ const Reports: React.FC = () => {
   // Filter states
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [month, setMonth] = useState<number | 'all'>('all');
+  
   // Data states
   const [loading, setLoading] = useState(true);
-  const [transactions, setTransactions] = useState<any[]>([]);
-  const [investments, setInvestments] = useState<any[]>([]);
-  const [lending, setLending] = useState<any[]>([]);
-
+  const [transactions, setTransactions] = useState<any[] | null>(null);
+  const [investments, setInvestments] = useState<any[] | null>(null);
+  // Note: 'lending' variable was unused, so removing it to fix the warning
+  
   // Fetch all report data (transactions, investments, lending/borrowing)
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
-      let { data: trans, error: err } = await supabase
+      let { data: trans } = await supabase
         .from('transactions')
         .select('*')
         .gte('date', `${year}-01-01`)
         .lte('date', `${year}-12-31`);
+      
       if (month !== 'all') {
         trans = trans?.filter((t: any) => new Date(t.date).getMonth() === +month);
       }
+      
       let { data: invest } = await supabase
         .from('investments')
         .select('*')
         .gte('date', `${year}-01-01`)
         .lte('date', `${year}-12-31`);
-      let { data: lend } = await supabase
-        .from('lending')
-        .select('*')
-        .gte('date', `${year}-01-01`)
-        .lte('date', `${year}-12-31`);
-      setTransactions(trans ?? []);
-      setInvestments(invest ?? []);
-      setLending(lend ?? []);
+      
+      // Note: 'lend' data was fetched but not used, and 'err' was also unused
+      // Removing unused variables to fix TypeScript warnings
+      
+      setTransactions(trans ?? null);
+      setInvestments(invest ?? null);
       setLoading(false);
     };
-
+    
     fetchData();
   }, [month, year]);
-
+  
   // Analytics: group by category/subcategory
   function breakdown(list: any[], type: 'income' | 'expense' | 'investment') {
     const result: Record<string, number> = {};
-    list.filter(item => item.type === type).forEach((item: any) => {
+    list?.filter(item => item.type === type).forEach((item: any) => {
       const label = item.category + (item.subcategory ? ` / ${item.subcategory}` : '');
       result[label] = (result[label] ?? 0) + Number(item.amount);
     });
     return result;
   }
+  
   // Monthly sums for bar chart
   function monthSums(list: any[], type: string) {
     const arr = Array(12).fill(0);
-    list.filter(item => item.type === type).forEach((item: any) => {
+    list?.filter(item => item.type === type).forEach((item: any) => {
       const m = new Date(item.date).getMonth();
       arr[m] += Number(item.amount);
     });
     return arr;
   }
-
+  
   // Download as CSV
   const downloadCSV = () => {
+    if (!transactions) return;
+    
     const header = 'Date,Type,Category,Subcategory,Amount,Notes\n';
     const allRows = transactions.map(
       t =>
@@ -91,30 +93,33 @@ const Reports: React.FC = () => {
     link.download = `finance-report-${year}${month !== 'all' ? '-' + monthNames[month as number] : ''}.csv`;
     link.click();
   };
-
+  
   // Download as PDF (simple print)
   const downloadPDF = () => {
     window.print();
   };
-
+  
   // Year selector (shows years with data)
   const years = [2023, 2024, 2025];
   if (!years.includes(year)) years.push(year);
   years.sort((a, b) => b - a);
-
+  
+  // Early return if loading or no data
+  if (loading) return <div>Loading reports...</div>;
+  if (!transactions || !investments) return <div>No data available</div>;
+  
   // Data breakdown for charts
   const incomeData = breakdown(transactions, 'income');
   const expenseData = breakdown(transactions, 'expense');
   const investmentData = breakdown(investments, 'investment');
+  
   const monthlyIncome = monthSums(transactions, 'income');
   const monthlyExpense = monthSums(transactions, 'expense');
-
-  if (loading) return <div>Loading reports...</div>;
-
+  
   return (
     <div className="p-4 max-w-5xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Reports & Analytics</h1>
-
+      
       {/* Filters */}
       <div className="flex gap-4 mb-4">
         <label>
@@ -129,6 +134,7 @@ const Reports: React.FC = () => {
               ))}
             </select>
         </label>
+        
         <label>
           Month:
           <select
@@ -143,7 +149,7 @@ const Reports: React.FC = () => {
           </select>
         </label>
       </div>
-
+      
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
         <div className="bg-green-100 p-3 rounded shadow">
@@ -169,7 +175,7 @@ const Reports: React.FC = () => {
           </div>
         </div>
       </div>
-
+      
       {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div>
@@ -212,7 +218,7 @@ const Reports: React.FC = () => {
           />
         </div>
       </div>
-
+      
       {/* Monthly Bar Chart */}
       <div className="bg-white p-4 mb-4 rounded shadow">
         <h2 className="font-medium mb-2">Monthly Trend (Income vs Expense)</h2>
@@ -235,11 +241,11 @@ const Reports: React.FC = () => {
           options={{ responsive: true, plugins: { legend: { position: 'top' } } }}
         />
       </div>
-
+      
       {/* Export Buttons */}
       <div className="flex gap-3">
-        <button onClick={downloadCSV} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium">Export as CSV</button>
-        <button onClick={downloadPDF} className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded font-medium">Print or Save as PDF</button>
+        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium" onClick={downloadCSV}>Export as CSV</button>
+        <button className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded font-medium" onClick={downloadPDF}>Print or Save as PDF</button>
       </div>
     </div>
   );
