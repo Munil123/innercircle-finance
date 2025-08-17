@@ -1,10 +1,15 @@
 {
-  "dependencies": {
-    "chart.js": "^4.5.0",
-    "react-chartjs-2": "^5.3.0"
+  "name": "innercircle-finance",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "A comprehensive finance management platform built with Supabase and Vite in a monorepo architecture.",
+  "scripts": {
+    "dev": "cd apps/web && npm run dev",
+    "build": "cd apps/web && npm run build",
+    "install-all": "cd apps/web && npm install"
   },
-  "devDependencies": {
-    "@types/chart.js": "^4.0.1",
-    "@types/react-chartjs-2": "^2.5.7"
-  }
+  "keywords": ["finance", "supabase", "react", "typescript", "vite"],
+  "author": "Inner Circle Team",
+  "license": "MIT"
 }
